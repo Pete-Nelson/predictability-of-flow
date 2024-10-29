@@ -15,6 +15,7 @@
 library(envPred)
 library(tidyverse)
 library(tsibble)
+library(openxlsx)
 
 # test regularity ----
 
@@ -36,6 +37,17 @@ butte_env_pred <-
           is_uneven = TRUE,
           noise_method = "lomb_scargle") %>% 
   as.vector()
+
+# view other related results
+names(butte_env_pred)
+dput(butte_env_pred)
+str(butte_env_pred)
+attr(butte_env_pred, "detrended_data")
+attr(butte_env_pred, "noise_data")
+attr(butte_env_pred, "noise_model")
+attr(butte_env_pred, "class")
+
+?envpreddata # see also Marshall & Burgess 2015 and Vasseur & Yodiz 2004
 
 ## NO butte_forks ----
 # super short ts!
@@ -124,17 +136,6 @@ grass_env_pred <-
 happy_isles_env_pred <-
   env_stats(happy_isles$flow,
             happy_isles$date,
-            n_states = 11,
-            delta = 1,
-            is_uneven = TRUE,
-            noise_method = "lomb_scargle") %>% 
-  as.vector()
-
-## NO harvest ----
-# data error?
-harvest_env_pred <-
-  env_stats(harvest$flow,
-            harvest$date,
             n_states = 11,
             delta = 1,
             is_uneven = TRUE,
@@ -333,7 +334,7 @@ xcountry_env_pred <-
 
 # combined results -----
 
-flow_env_pred <- 
+trib_flow_env_pred <- 
   bind_rows(butte_env_pred, 
             clear_env_pred,
             colem_env_pred,
@@ -373,15 +374,63 @@ flow_env_pred <-
              .before = "series_n")
 
 # show data from all sites (except for butte_forks & harvest)
-flow_env_pred %>% 
+trib_flow_env_pred %>% 
   select(site, n_yrs, unbounded_seasonality:colwell_m) %>% 
   print(., n = Inf)
 
-write_csv(flow_env_pred, "results/flow_env_pred.csv")
-write_rds(flow_env_pred, "results/flow_env_pred.rds")
+write_csv(trib_flow_env_pred, "data/trib_flow_env_pred.csv")
+write_rds(trib_flow_env_pred, "data/trib_flow_env_pred.rds")
 
-# do next -----
-# add: USGS site code, river or creek, lat/lng, dammed vs undammed, elevation
+# analysis set -----
+## data table ----
+env_pred <- 
+  left_join(trib_flow_env_pred[,c(1,5,13:20)], 
+            flow_meta[,c(1,3:8,12,14)],
+            join_by(site == site_cd)) %>% 
+  mutate(dam = as.factor(dam),
+         system_nm = as.factor(system_nm)) %>% 
+  arrange(-dec_lat_va) %>% 
+  print(n=Inf)
+
+write_rds(env_pred, "data/env_pred.rds")
+
+print(env_pred[,c(1,6:10,12,15:18)], n=Inf)
+
+## drainage area ----
+# is drainage area correlated w predictability?
+plot(colwell_p ~ drain_area_va, data = env_pred)
+mod1p <-
+  lm(colwell_p ~ drain_area_va, data = env_pred)
+summary(mod1p)
+
+# is drainage area correlated w constancy?
+plot(colwell_c ~ drain_area_va, data = env_pred)
+mod1c <-
+  lm(colwell_c ~ drain_area_va, data = env_pred)
+summary(mod1c)
+
+# is drainage area correlated w contingency?
+plot(colwell_m ~ drain_area_va, data = env_pred)
+mod1m <-
+  lm(colwell_m ~ drain_area_va, data = env_pred)
+summary(mod1m)
+
+## ANOVAs -----
+boxplot(colwell_p ~ dam, data = env_pred)
+mod2p <- aov(colwell_p ~ dam, data = env_pred)
+summary(mod2p)
+
+boxplot(colwell_c ~ dam, data = env_pred)
+mod2c <- aov(colwell_c ~ dam, data = env_pred)
+summary(mod2c)
+
+boxplot(colwell_m ~ dam, data = env_pred)
+mod2m <- aov(colwell_m ~ dam, data = env_pred)
+summary(mod2m)
+
+
+ # do next -----
+# add: river or creek, stream order (river continuum)
 # remove: grand_cyn bc only 5 years of data?
 
 # SCRATCH ##############################

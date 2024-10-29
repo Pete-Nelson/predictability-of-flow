@@ -80,42 +80,29 @@ pcode_to_name(parameterCd = pft)
 ## calculations -----
 # degree-days: calculate the monthly cumulative degree-days or the mean monthly degree days to get at the possible thermal stress experienced by fishes
 
-
+## data availability ----
+# as of 22 October 2024, these sites didn't appear to have data
+# Dunsmuir, DWSC Freeport, DWSC Clarksburg, Hood, Toland
 
 
 # Sacramento River mainstem -----
 
-## Yreka ----
-# Sacramento R near Yreka, California
-site <- "11517500"
-
-yreka_meta <- readNWISsite(site) %>% 
-  bind_cols(site_cd = "yreka",
-            system_nm = "Sacramento R",
-            dam = "no") %>% 
-  relocate(site_cd, 
-           dam,
-           system_nm,
-           .after = site_no)
-
-yreka <- # raw daily data
-  readNWISdv(siteNumber = site, 
-             parameterCd = "00060", # discharge, ft3/s
-             statCd = "00003") %>% # pulls daily mean only
-  mutate(site_no = site_no,
-         date = Date,
-         flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date) %>% relocate(flow, date)
-
 ## Dunsmuir ----
 # Sacramento R below Little Castle C near Dunsmuir, California
+# as of 22 Oct 2024, site doesn't seem to have data--gets error message
 site <- "11341450"
 
-dunsmuir_meta <- readNWISsite(site) %>% 
+dunsmuir_meta <-
+  readNWISsite(site) %>% 
   bind_cols(site_cd = "dunsmuir",
             system_nm = "Sacramento R",
             dam = "yes") %>% 
-  relocate(site_cd, .after = site_no)
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
 
 dunsmuir <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -124,7 +111,8 @@ dunsmuir <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date) %>% relocate(flow, date)
+         .keep = "none") %>% relocate(flow, date) %>% 
+  relocate(flow, date)
 
 ## Shasta -----
 # above Shasta Lake near Delta, California NOT anywhere close to the real Delta!
@@ -134,7 +122,10 @@ shasta_meta <- readNWISsite(site) %>%
   bind_cols(site_cd = "shasta",
             system_nm = "Sacramento R",
             dam = "yes") %>% 
-  relocate(site_cd, .after = site_no)
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no)
 
 shasta <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -150,8 +141,13 @@ shasta <- # raw daily data
 site <- "11377100"
 
 rbdd_meta <- readNWISsite(site) %>% 
-  bind_cols(site_cd = "rbdd") %>% 
-  relocate(site_cd, .after = site_no)
+  bind_cols(site_cd = "rbdd",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no)
 
 rbdd <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -168,8 +164,13 @@ rbdd <- # raw daily data
 site <- "11389500"
 
 colusa_meta <- readNWISsite(site) %>% 
-  bind_cols(site_cd = "rbdd") %>% 
-  relocate(site_cd, .after = site_no)
+  bind_cols(site_cd = "colusa",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no)
 
 colusa <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -186,8 +187,13 @@ colusa <- # raw daily data
 site <- "11425500"
 
 verona_meta <- readNWISsite(site) %>% 
-  bind_cols(site_cd = "rbdd") %>% 
-  relocate(site_cd, .after = site_no)
+  bind_cols(site_cd = "verona",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no)
 
 verona <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -200,12 +206,20 @@ verona <- # raw daily data
 
 ## DWSC Freeport ----
 # Sacramento River-Deepwater Ship Channel nr Freeport, CA
+# as of 22 Oct 2024, site doesn't seem to have data--gets error message
 
 site <- "11455095"
 
 dwfreep_meta <- readNWISsite(site) %>% 
-  bind_cols(site_cd = "rbdd") %>% 
-  relocate(site_cd, .after = site_no)
+  bind_cols(site_cd = "dwfreep",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
 
 # no flow data?!
 
@@ -220,14 +234,20 @@ dwfreep_meta <- readNWISsite(site) %>%
 
 ## DWSC Clarksburg ----
 # Sacramento River-Deepwater Ship Channel nr Clarksburg, CA
+# as of 22 Oct 2024, site doesn't seem to have data--gets error message
 
 site <- "11455136"
 
 dwclarks_meta <- readNWISsite(site) %>% 
-    bind_cols(site_cd = "rbdd") %>% 
-    relocate(site_cd, .after = site_no)
-
-# no flow data?!
+  bind_cols(site_cd = "dwclarks",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
 
 # dwclarks <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -244,8 +264,15 @@ dwclarks_meta <- readNWISsite(site) %>%
 site <- "11447650"
 
 freep_meta <- readNWISsite(site) %>% 
-    bind_cols(site_cd = "rbdd") %>% 
-    relocate(site_cd, .after = site_no)
+  bind_cols(site_cd = "freep",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
 
 freep <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -258,12 +285,18 @@ freep <- # raw daily data
 
 ## Hood ----
 # Sacramento River at Hood, CA
+# as of 22 Oct 2024, site doesn't seem to have data--gets error message
 
 site <- "382205121311300"
 
 hood_meta <- readNWISsite(site) %>% 
-  bind_cols(site_cd = "rbdd") %>% 
-  relocate(site_cd, .after = site_no)
+  bind_cols(site_cd = "hood",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no)
 
 hood <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -276,12 +309,18 @@ hood <- # raw daily data
 
 ## Toland ----
 # Sacramento River at Toland Landing near Rio Vista
+# as of 22 Oct 2024, site doesn't seem to have data--gets error message
 
 site <- "11455485"
 
 toland_meta <- readNWISsite(site) %>% 
-  bind_cols(site_cd = "rbdd") %>% 
-  relocate(site_cd, .after = site_no)
+  bind_cols(site_cd = "toland",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no)
 
 # no flow data!
 
@@ -303,8 +342,13 @@ toland_meta <- readNWISsite(site) %>%
 site <- "11368000"
 
 mccld_meta <- readNWISsite(site) %>% 
-    bind_cols(site_cd = "rbdd") %>% 
-    relocate(site_cd, .after = site_no)
+  bind_cols(site_cd = "mccld",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no)
 
 mccld <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -322,8 +366,14 @@ mccld <- # raw daily data
 site <- "11372000"
 
 clear_meta <- readNWISsite(site) %>% 
-  bind_cols(site_cd = "rbdd") %>% 
-  relocate(site_cd, .after = site_no)
+  bind_cols(site_cd = "clear",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  print()
 
 clear <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -340,8 +390,14 @@ clear <- # raw daily data
 site <- "11376550"
 
 colem_meta <- readNWISsite(site) %>% 
-  bind_cols(site_cd = "rbdd") %>% 
-  relocate(site_cd, .after = site_no)
+  bind_cols(site_cd = "colem",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  print()
 
 colem <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -358,8 +414,14 @@ colem <- # raw daily data
 site <- "11376160"
 
 wildcat_meta <- readNWISsite(site) %>% 
-  bind_cols(site_cd = "rbdd") %>% 
-  relocate(site_cd, .after = site_no)
+  bind_cols(site_cd = "wildcat",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  print()
 
 wildcat <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -376,8 +438,14 @@ wildcat <- # raw daily data
 site <- "11376440"
 
 inskip_meta <- readNWISsite(site) %>% 
-  bind_cols(site_cd = "rbdd") %>% 
-  relocate(site_cd, .after = site_no)
+  bind_cols(site_cd = "inskip",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  print()
 
 inskip <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -394,8 +462,14 @@ inskip <- # raw daily data
 site <- "11376140"
 
 xcountry_meta <- readNWISsite(site) %>% 
-  bind_cols(site_cd = "rbdd") %>% 
-  relocate(site_cd, .after = site_no)
+  bind_cols(site_cd = "xcountry",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  print()
 
 xcountry <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -412,8 +486,15 @@ xcountry <- # raw daily data
 site <- "11376040"
 
 smith_meta <- readNWISsite(site) %>% 
-  bind_cols(site_cd = "rbdd") %>% 
-  relocate(site_cd, .after = site_no)
+  bind_cols(site_cd = "smith",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
 
 smith <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -430,8 +511,14 @@ smith <- # raw daily data
 site <- "11376015"
 
 manzanita_meta <- readNWISsite(site) %>% 
-  bind_cols(site_cd = "rbdd") %>% 
-  relocate(site_cd, .after = site_no)
+  bind_cols(site_cd = "manzanita",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  print()
 
 manzanita <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -446,7 +533,16 @@ manzanita <- # raw daily data
 # site number: 11381500
 
 site <- "11381500"
-readNWISsite(site)$station_nm # site meta data
+
+mill_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "mill",
+            system_nm = "Sacramento R",
+            dam = "no") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  print()
 
 mill <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -461,7 +557,16 @@ mill <- # raw daily data
 # site number: 11383500
 
 site <- "11383500"
-readNWISsite(site)$station_nm # site meta data
+
+deer_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "deer",
+            system_nm = "Sacramento R",
+            dam = "no") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  print()
 
 deer <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -478,7 +583,16 @@ deer <- # raw daily data
 ### near Sac R conflu & Chico -----
 
 site <- "11390000"
-readNWISsite(site)$station_nm # site meta data
+
+butte_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "butte",
+            system_nm = "Sacramento R",
+            dam = "no") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  print()
 
 butte <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -492,9 +606,20 @@ butte <- # raw daily data
 ### below Forks of Butte ----
 # near De Sabla C
 # site number: 11389740
+# severely deficient dataset
 
 site <- "11389740"
-readNWISsite(site)$station_nm # site meta data
+
+butte_forks_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "butte_forks",
+            system_nm = "Sacramento R",
+            dam = "no") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
 
 butte_forks <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -509,7 +634,16 @@ butte_forks <- # raw daily data
 ### Putah N ----
 
 site <- "11454000"
-readNWISsite(site)$station_nm # site meta data
+
+putah_n_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "putah_n",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  print()
 
 putah_n <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -523,7 +657,16 @@ putah_n <- # raw daily data
 ### Putah S -----
 
 site <- "11454210"
-readNWISsite(site)$station_nm # site meta data
+
+putah_s_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "putah_s",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  print()
 
 putah_s <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -539,7 +682,16 @@ putah_s <- # raw daily data
 ### Oroville -----
 
 site <- "11407000"
-readNWISsite(site)$station_nm # site meta data
+
+orov_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "orov",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  print()
 
 orov <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -554,7 +706,16 @@ orov <- # raw daily data
 # SF Feather R below Forbestown Dam
 
 site <- "11396200"
-readNWISsite(site)$station_nm # site meta data
+
+forbes_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "forbes",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  print()
 
 forbes <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -569,7 +730,16 @@ forbes <- # raw daily data
 # SF Feather R below div dam near Strawberry Valley California
 
 site <- "11395200"
-readNWISsite(site)$station_nm # site meta data
+
+strawb_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "strawb",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  print()
 
 strawb <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -584,7 +754,16 @@ strawb <- # raw daily data
 # SF Feather R below Little Grass Valley Dam, California
 
 site <- "11395030"
-readNWISsite(site)$station_nm # site meta data
+
+grass_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "grass",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  print()
 
 grass <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -600,7 +779,16 @@ grass <- # raw daily data
 ### Marysville -----
 
 site <- "11421000"
-readNWISsite(site)$station_nm # site meta data
+
+marysv_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "marysv",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  print()
 
 marysv <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -616,7 +804,17 @@ marysv <- # raw daily data
 # just above Hetch Hetchy
 
 site <- "11274790"
-readNWISsite(site)$station_nm # site meta data
+
+grand_cyn_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "grand_cyn",
+            system_nm = "Sacramento R",
+            dam = "no") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
 
 grand_cyn <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -631,7 +829,16 @@ grand_cyn <- # raw daily data
 # Tuolumne River just below O'Shaunnesy Dam
 
 site <- "11276500"
-readNWISsite(site)$station_nm # site meta data
+
+hetchy_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "hetchy",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  print()
 
 hetchy <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -646,7 +853,16 @@ hetchy <- # raw daily data
 # Tuolumne River below O'Shaunnesy near Mather
 
 site <- "11276600"
-readNWISsite(site)$station_nm # site meta data
+
+mather_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "mather",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  print()
 
 mather <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -662,7 +878,17 @@ mather <- # raw daily data
 # Merced River at Happy Isles Bridge, Yosemite Valley
 
 site <- "11264500"
-readNWISsite(site)$station_nm # site meta data
+
+happy_isles_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "happy_isles",
+            system_nm = "Sacramento R",
+            dam = "no") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
 
 happy_isles <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -677,7 +903,16 @@ happy_isles <- # raw daily data
 # Merced R at Pohono Bridge below Yosemite Valley
 
 site <- "11266500"
-readNWISsite(site)$station_nm # site meta data
+
+pahono_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "pahono",
+            system_nm = "Sacramento R",
+            dam = "no") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  print()
 
 pahono <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -692,7 +927,16 @@ pahono <- # raw daily data
 # Merced R below Merced Falls Dam
 
 site <- "11270900"
-readNWISsite(site)$station_nm # site meta data
+
+merced_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "merced",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  print()
 
 merced <- # raw daily data
   readNWISdv(siteNumber = site, 
@@ -702,3 +946,77 @@ merced <- # raw daily data
          date = Date,
          flow = X_00060_00003,
          .keep = "none") %>% relocate(flow, date)
+
+# Klamath River -----
+## Yreka ----
+# Klamath R near Yreka, California
+site <- "11517500"
+
+yreka_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "yreka",
+            system_nm = "Klamath R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
+
+yreka <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+  mutate(site_no = site_no,
+         date = Date,
+         flow = X_00060_00003,
+         .keep = "none") %>% relocate(flow, date) %>% relocate(flow, date)
+
+# meta data -----
+flow_meta <- 
+  bind_rows(butte_meta,
+            butte_forks_meta,
+            clear_meta,
+            colem_meta,
+            colusa_meta,
+            deer_meta,
+            dunsmuir_meta,
+            dwclarks_meta,
+            dwfreep_meta,
+            forbes_meta,
+            freep_meta,
+            grand_cyn_meta,
+            grass_meta,
+            happy_isles_meta,
+            hetchy_meta,
+            hood_meta,
+            inskip_meta,
+            manzanita_meta,
+            marysv_meta,
+            mather_meta,
+            mccld_meta,
+            merced_meta,
+            mill_meta,
+            orov_meta,
+            pahono_meta,
+            putah_n_meta,
+            putah_s_meta,
+            rbdd_meta,
+            shasta_meta,
+            smith_meta,
+            strawb_meta,
+            toland_meta,
+            verona_meta,
+            wildcat_meta,
+            xcountry_meta,
+            yreka_meta
+  ) %>% 
+  relocate(site_cd) %>% 
+  select(site_cd:station_nm, dec_lat_va, dec_long_va, coord_datum_cd, county_cd,
+         land_net_ds, alt_va, alt_datum_cd, drain_area_va, local_time_fg)
+
+# show data from all sites (except for butte_forks & harvest)
+flow_meta
+
+write_csv(flow_meta, "data/flow_meta.csv")
+write_rds(flow_meta, "data/flow_meta.rds")

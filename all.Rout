@@ -1,0 +1,109 @@
+Error in log("a") : non-numer [1] ""                                                                 
+ [2] "Call:"                                                            
+ [3] "glm(formula = case ~ spontaneous + induced, family = binomial(), "
+ [4] "    data = infert)"                                               
+ [5] ""                                                                 
+ [6] "Coefficients:"                                                    
+ [7] "            Estimate Std. Error z value Pr(>|z|)    "             
+ [8] "(Intercept)  -1.7079     0.2677  -6.380 1.78e-10 ***"             
+ [9] "spontaneous   1.1972     0.2116   5.657 1.54e-08 ***"             
+[10] "induced       0.4181     0.2056   2.033    0.042 *  "             
+[11] "---"                                                              
+[12] "Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1"   
+[13] ""                                                                 
+[14] "(Dispersion parameter for binomial family taken to be 1)"         
+[15] ""                                                                 
+[16] "    Null deviance: 316.17  on 247  degrees of freedom"            
+[17] "Residual deviance: 279.61  on 245  degrees of freedom"            
+[18] "AIC: 285.61"                                                      
+[19] ""                                                                 
+[20] "Number of Fisher Scoring iterations: 4"                           
+[21] ""                                                                 
+
+Call:
+glm(formula = case ~ spontaneous + induced, family = binomial(), 
+    data = infert)
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -1.7079     0.2677  -6.380 1.78e-10 ***
+spontaneous   1.1972     0.2116   5.657 1.54e-08 ***
+induced       0.4181     0.2056   2.033    0.042 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 316.17  on 247  degrees of freedom
+Residual deviance: 279.61  on 245  degrees of freedom
+AIC: 285.61
+
+Number of Fisher Scoring iterations: 4
+
+
+Call:
+glm(formula = case ~ spontaneous + induced, family = binomial(), 
+    data = infert)
+
+Coefficients:
+            Estimate Std. Error z value Pr(>|z|)    
+(Intercept)  -1.7079     0.2677  -6.380 1.78e-10 ***
+spontaneous   1.1972     0.2116   5.657 1.54e-08 ***
+induced       0.4181     0.2056   2.033    0.042 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+(Dispersion parameter for binomial family taken to be 1)
+
+    Null deviance: 316.17  on 247  degrees of freedom
+Residual deviance: 279.61  on 245  degrees of freedom
+AIC: 285.61
+
+Number of Fisher Scoring iterations: 4
+
+
+Call:  glm(formula = case ~ spontaneous + induced, family = binomial(), 
+    data = infert)
+
+Coefficients:
+(Intercept)  spontaneous      induced  
+    -1.7079       1.1972       0.4181  
+
+Degrees of Freedom: 247 Total (i.e. Null);  245 Residual
+Null Deviance:	    316.2 
+Residual Deviance: 279.6 	AIC: 285.6
+[1] ""                                                                 
+[2] "Call:"                                                            
+[3] "glm(formula = case ~ spontaneous + induced, family = binomial(), "
+[4] "    data = infert)"                                               
+[5] ""                                                                 
+[1] "[1] 2" "[1] 4"
+[1] "[1] 4"
+[1] ""                                                                 
+[2] "Call:"                                                            
+[3] "glm(formula = case ~ spontaneous + induced, family = binomial(), "
+[4] "    data = infert)"                                               
+[5] ""                                                                 
+ [1] ""                                                                 
+ [2] "Call:"                                                            
+ [3] "glm(formula = case ~ spontaneous + induced, family = binomial(), "
+ [4] "    data = infert)"                                               
+ [5] ""                                                                 
+ [6] "Coefficients:"                                                    
+ [7] "            Estimate Std. Error z value Pr(>|z|)    "             
+ [8] "(Intercept)  -1.7079     0.2677  -6.380 1.78e-10 ***"             
+ [9] "spontaneous   1.1972     0.2116   5.657 1.54e-08 ***"             
+[10] "induced       0.4181     0.2056   2.033    0.042 *  "             
+[11] "---"                                                              
+[12] "Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1"   
+[13] ""                                                                 
+[14] "(Dispersion parameter for binomial family taken to be 1)"         
+[15] ""                                                                 
+[16] "    Null deviance: 316.17  on 247  degrees of freedom"            
+[17] "Residual deviance: 279.61  on 245  degrees of freedom"            
+[18] "AIC: 285.61"                                                      
+[19] ""                                                                 
+[20] "Number of Fisher Scoring iterations: 4"                           
+[21] ""                                                                 
+ chr [1:21] "" "Call:" ...
+[1] "C:/Users/pnelson/OneDrive - California Department of Water Resources/3-Projects/02-GitHub projects/predictability of flow"
