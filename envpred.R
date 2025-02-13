@@ -18,7 +18,7 @@ library(tsibble)
 library(openxlsx)
 
 # test regularity ----
-
+butte_forks <- read_rds("data/butte_forks.rds")
 temp <- tsibble(butte_forks,
         key = "site_no",
         index = "date") %>%  

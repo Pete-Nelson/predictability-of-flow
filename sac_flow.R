@@ -629,6 +629,7 @@ butte_forks <- # raw daily data
          date = Date,
          flow = X_00060_00003,
          .keep = "none") %>% relocate(flow, date)
+write_rds(butte_forks, "data/butte_forks.rds")
 
 ## Putah Creek -----
 ### Putah N ----
