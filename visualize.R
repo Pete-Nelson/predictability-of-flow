@@ -140,8 +140,27 @@ plot(data = site_chr, colwell_p ~ alt_va, pch = 16)
 
 plot(colwell_c ~ unbounded_seasonality, data = site_chr)
 
-ggplot(putah_s, aes(date, flow)) + geom_line()
-ggplot(putah_n, aes(date, flow)) + geom_line()
+## Putah Creek time series -----
+# below Monticello Dam and Berryessa Lake
+ggplot(
+  read_rds("data/putah_n.rds"), 
+  aes(date, flow)) + 
+  geom_line() +
+  ggtitle("Putah Creek", subtitle = "below Monticello Dam")
+
+putah_dam <- read_rds("data/putah_n.rds") %>% 
+  filter(date >= "1951-10-01" & date <= "1966-09-30")
+
+ggplot(putah_dam, aes(date, flow)) + 
+  geom_line() +
+  xlab("") + ylab("")
+
+# Putah South Canal time series
+ggplot(
+  read_rds("data/putah_s.rds"), 
+  aes(date, flow)) + 
+  geom_line() +
+  ggtitle("Putah South Canal")
 
 ##
 

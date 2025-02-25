@@ -158,6 +158,9 @@ rbdd <- # raw daily data
          flow = X_00060_00003,
          .keep = "none") %>% relocate(flow, date)
 
+# save Red Bluff flow data for visualization
+write_rds(rbdd, "data/rbdd.rds")
+
 ## Colusa ----
 # Sacramento River at Colusa CA
 
@@ -655,6 +658,9 @@ putah_n <- # raw daily data
          flow = X_00060_00003,
          .keep = "none") %>% relocate(flow, date)
 
+# save Putah Crk N flow data for visualization
+write_rds(putah_n, "data/putah_n.rds")
+
 ### Putah S -----
 
 site <- "11454210"
@@ -677,6 +683,9 @@ putah_s <- # raw daily data
          date = Date,
          flow = X_00060_00003,
          .keep = "none") %>% relocate(flow, date)
+
+# save Putah Crk S flow data for visualization
+write_rds(putah_s, "data/putah_s.rds")
 
 ## Feather River -----
 

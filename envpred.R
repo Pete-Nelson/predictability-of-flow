@@ -428,8 +428,161 @@ boxplot(colwell_m ~ dam, data = env_pred)
 mod2m <- aov(colwell_m ~ dam, data = env_pred)
 summary(mod2m)
 
+# dammed systems ----
+## putah -----
+### putah creek -----
+putah_n <- read_rds("data/putah_n.rds")
+# Putah Creek site is below the Monticello Dam & the lake it forms (Berryessa)
+# Monticello was 90% complete December 1956; I've divided the time series as 
+# 1930-06-28 to 1956-09-30 (pre-dam) and 1956-10-01 to latest (post-dam)
 
- # do next -----
+ggplot(putah_n,
+       aes(x = date, y = flow)) +
+  geom_line() +
+  ggtitle("Putah Creek below Monticello Dam") +
+  theme_bw()
+
+temp <- putah_n %>% filter(date >= "1953-10-01" & date <= "1967-09-30")
+
+ggplot(temp,
+       aes(x = date, y = flow)) +
+  geom_line() +
+  labs(x = "", y = "") +
+  theme_bw()
+
+# Shasta Dam began storing water in 1944
+
+# pre-dam
+putah_pre <- 
+  putah_n %>% 
+  filter(date <= "1956-09-30")
+
+putah_pre_env_pred <-
+  env_stats(putah_pre$flow,
+            putah_pre$date,
+            n_states = 11,
+            delta = 1,
+            is_uneven = TRUE,
+            noise_method = "lomb_scargle") %>% 
+  as_vector()
+
+# post-dam
+putah_post <- 
+  putah_n %>% 
+  filter(date >= "1956-10-01")
+
+putah_post_env_pred <-
+  env_stats(putah_post$flow,
+            putah_post$date,
+            n_states = 11,
+            delta = 1,
+            is_uneven = TRUE,
+            noise_method = "lomb_scargle") %>% 
+  as.vector()
+
+putah_n_stats_wide <- 
+  bind_rows(putah_pre_env_pred, putah_post_env_pred) %>% 
+  add_column(dam = c("pre", "post"), 
+             .before = "series_n") %>% 
+  select(dam, n_yrs, unbounded_seasonality:colwell_p)
+
+write_csv(putah_n_stats_wide, "results/putah_n_stats_wide.csv")
+          
+### putah south canal ------
+putah_s <- read_rds("data/putah_s.rds") # any added value?
+
+putah_s_env_pred <-
+  env_stats(putah_s$flow,
+            putah_s$date,
+            n_states = 11,
+            delta = 1,
+            is_uneven = TRUE,
+            noise_method = "lomb_scargle") %>% 
+  as.vector()
+
+bind_rows(putah_pre_env_pred, putah_post_env_pred, putah_s_env_pred) %>% 
+  add_column(dam = c("putah_pre", "putah_post", "putah_canal"), 
+             .before = "series_n") %>% 
+  select(dam, n_yrs, unbounded_seasonality:colwell_p)
+
+## rbdd -----
+# station upstream of the Red Bluff Diversion Dam
+
+rbdd <- read_rds("data/rbdd.rds")
+
+ggplot(rbdd,
+       aes(x = date, y = flow)) +
+  geom_line() +
+  ggtitle("Sacramento River above Red Bluff Diversion Dam") +
+  theme_bw()
+
+temp <- rbdd %>% filter(date >= "1930-10-01" & date <= "1955-09-30")
+
+ggplot(temp,
+       aes(x = date, y = flow)) +
+  geom_line() +
+  labs(x = "", y = "") +
+  theme_bw()
+
+# Shasta Dam began storing water in 1944
+
+# pre-dam
+rbdd_pre <- 
+  rbdd %>% 
+  filter(date <= "1943-09-30")
+
+rbdd_pre_env_pred <-
+  env_stats(rbdd_pre$flow,
+            rbdd_pre$date,
+            n_states = 11,
+            delta = 1,
+            is_uneven = TRUE,
+            noise_method = "lomb_scargle") %>% 
+  as_vector()
+
+# post-dam
+rbdd_post <- 
+  rbdd %>% 
+  filter(date >= "1943-10-01")
+
+rbdd_post_env_pred <-
+  env_stats(rbdd_post$flow,
+            rbdd_post$date,
+            n_states = 11,
+            delta = 1,
+            is_uneven = TRUE,
+            noise_method = "lomb_scargle") %>% 
+  as.vector()
+
+rbdd_stats_wide <-
+  bind_rows(rbdd_pre_env_pred, rbdd_post_env_pred) %>% 
+  add_column(dam = c("pre", "post"), 
+             .before = "series_n") %>% 
+  select(dam, n_yrs, unbounded_seasonality:colwell_p) %>% 
+  mutate(dam = as_factor(dam)) %>% 
+  print()
+
+write_csv(rbdd_stats_wide, "results/rbdd_stats_wide.csv")
+
+rbdd_stats <- 
+  bind_rows(rbdd_pre_env_pred, rbdd_post_env_pred) %>% 
+  add_column(dam = c("pre", "post"), 
+             .before = "series_n") %>% 
+  select(dam, n_yrs, unbounded_seasonality:colwell_p) %>% 
+  mutate(dam = as_factor(dam)) %>% 
+  pivot_longer(., cols = c(unbounded_seasonality:colwell_p), names_to = "measure") %>% 
+  filter(., 
+         measure == "env_col" | measure == "colwell_c" | measure == "colwell_m")
+
+ggplot(rbdd_stats,
+            aes(x = dam, y = value,
+                fill = measure,
+                color = measure)) +
+  geom_bar(stat = "identity",
+           position = "dodge") +
+  theme_bw()
+
+# do next -----
 # add: river or creek, stream order (river continuum)
 # remove: grand_cyn bc only 5 years of data?
 
