@@ -10,6 +10,7 @@
 
 library(dataRetrieval) # USGS pkg for retrieving flow data
 library(tidyverse) # data handling...
+library(zoo) # working w time series
 
 # finding sites -----
 # https://maps.waterdata.usgs.gov/mapper/index.html
@@ -89,12 +90,17 @@ pcode_to_name(parameterCd = pft)
 
 ## Dunsmuir ----
 # Sacramento R below Little Castle C near Dunsmuir, California
-# as of 22 Oct 2024, site doesn't seem to have data--gets error message
+# site has only 11 data points, total
 site <- "11341450"
 
-dunsmuir_meta <-
+## Delta ----
+# Sacramento R at Delta, California
+# 
+site <- "11342000"
+
+delta_meta <-
   readNWISsite(site) %>% 
-  bind_cols(site_cd = "dunsmuir",
+  bind_cols(site_cd = "delta",
             system_nm = "Sacramento R",
             dam = "yes") %>% 
   relocate(site_cd, 
@@ -104,37 +110,15 @@ dunsmuir_meta <-
   mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
   print()
 
-dunsmuir <- # raw daily data
+delta <- # raw daily data
   readNWISdv(siteNumber = site, 
              parameterCd = "00060", # discharge, ft3/s
              statCd = "00003") %>% # pulls daily mean only
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date) %>% 
-  relocate(flow, date)
-
-## Shasta -----
-# above Shasta Lake near Delta, California NOT anywhere close to the real Delta!
-site <- "11342000"
-
-shasta_meta <- readNWISsite(site) %>% 
-  bind_cols(site_cd = "shasta",
-            system_nm = "Sacramento R",
-            dam = "yes") %>% 
-  relocate(site_cd, 
-           dam,
-           system_nm,
-           .after = site_no)
-
-shasta <- # raw daily data
-  readNWISdv(siteNumber = site, 
-             parameterCd = "00060", # discharge, ft3/s
-             statCd = "00003") %>% # pulls daily mean only
-  mutate(site_no = site_no,
-         date = Date,
-         flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date) %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow) %>% 
+  relocate(date, flow)
 
 ## Red Bluff -----
 # above Bend Bridge above Red Bluff (upstream of Red Bluff & RBDD)
@@ -156,7 +140,7 @@ rbdd <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 # save Red Bluff flow data for visualization
 write_rds(rbdd, "data/rbdd.rds")
@@ -182,7 +166,7 @@ colusa <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ## Verona ----
 # Sacramento River at Verona CA
@@ -205,7 +189,7 @@ verona <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ## DWSC Freeport ----
 # Sacramento River-Deepwater Ship Channel nr Freeport, CA
@@ -233,7 +217,7 @@ dwfreep_meta <- readNWISsite(site) %>%
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ## DWSC Clarksburg ----
 # Sacramento River-Deepwater Ship Channel nr Clarksburg, CA
@@ -259,7 +243,7 @@ dwclarks_meta <- readNWISsite(site) %>%
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ## Freeport ----
 # Sacramento River at Freeport, CA
@@ -284,7 +268,7 @@ freep <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ## Hood ----
 # Sacramento River at Hood, CA
@@ -308,7 +292,7 @@ hood <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ## Toland ----
 # Sacramento River at Toland Landing near Rio Vista
@@ -334,7 +318,30 @@ toland_meta <- readNWISsite(site) %>%
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
+  
+## !DCC ----
+# Sacramento River just above Delta Cross Channel
+  
+site <- "11455485"
+  
+dcc_meta <- readNWISsite(site) %>% 
+    bind_cols(site_cd = "dcc",
+              system_nm = "Sacramento R",
+              dam = "yes") %>% 
+    relocate(site_cd, 
+             dam,
+             system_nm,
+             .after = site_no)
+  
+  dcc <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+    mutate(site_no = site_no,
+           date = Date,
+           flow = X_00060_00003,
+           .keep = "none") %>% relocate(date, flow)
 
 # Sac R tribs ----
 
@@ -360,7 +367,7 @@ mccld <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ## Clear Creek -----
 # near Igo, California
@@ -385,7 +392,7 @@ clear <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ## Battle Creek ----
 ### Coleman hatchery -----
@@ -409,7 +416,7 @@ colem <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ### Wildcat Canyon -----
 # N Fork of Battle Creek below Wildcat Canyon, elev=1206'
@@ -433,7 +440,7 @@ wildcat <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ### Inskip -----
 # S Fork Battle Creek below S Power House, elev=1435'
@@ -457,7 +464,7 @@ inskip <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ### Xcountry Cyn -----
 # N Fork Battle Creek below diversion to Xcountry Canyon, near Manton, CA, elev 2212'
@@ -481,7 +488,7 @@ xcountry <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ### Smith Cyn -----
 # N Fork Battle below div to Al Smith Canyon near Manton, elev 3800'
@@ -506,7 +513,7 @@ smith <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ### Manzanita Lake -----
 # N Fork Battle Creek below the dam (N Battle Crk Reservoir), elev 5545'
@@ -530,7 +537,7 @@ manzanita <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ## Mill Creek -----
 # site number: 11381500
@@ -554,7 +561,7 @@ mill <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ## Deer Creek -----
 # site number: 11383500
@@ -578,7 +585,7 @@ deer <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ## Butte Creek ----
 # find via https://maps.waterdata.usgs.gov/mapper/index.html
@@ -604,7 +611,7 @@ butte <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ### below Forks of Butte ----
 # near De Sabla C
@@ -631,7 +638,7 @@ butte_forks <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 write_rds(butte_forks, "data/butte_forks.rds")
 
 ## Putah Creek -----
@@ -656,7 +663,7 @@ putah_n <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 # save Putah Crk N flow data for visualization
 write_rds(putah_n, "data/putah_n.rds")
@@ -682,7 +689,7 @@ putah_s <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 # save Putah Crk S flow data for visualization
 write_rds(putah_s, "data/putah_s.rds")
@@ -710,7 +717,7 @@ orov <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ### Forbestown Dam -----
 # SF Feather R below Forbestown Dam
@@ -734,7 +741,7 @@ forbes <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ### Strawberry Valley -----
 # SF Feather R below div dam near Strawberry Valley California
@@ -758,7 +765,7 @@ strawb <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ### Little Grass Valley dam -----
 # SF Feather R below Little Grass Valley Dam, California
@@ -782,7 +789,7 @@ grass <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ## Yuba River -----
 
@@ -807,7 +814,617 @@ marysv <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
+
+## Consumnes R -----
+### !Consumnes -----
+# at Michigan Bar, no "major" dams, but diversions thought to limit salmon
+# to the river below Rancho Murieta
+
+site <- "11335000"
+
+consumn_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "consumn",
+            system_nm = "Sacramento R",
+            dam = "no") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
+
+consumn <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+  mutate(site_no = site_no,
+         date = Date,
+         flow = X_00060_00003,
+         .keep = "none") %>% relocate(date, flow)
+
+# Mokelumne R -----
+## !Mokelumne NF -----
+# just below Salt Springs Dam
+
+site <- "11314500"
+
+mokel_nf_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "mokel_nf",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
+
+mokel_nf <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+  mutate(site_no = site_no,
+         date = Date,
+         flow = X_00060_00003,
+         .keep = "none") %>% relocate(date, flow)
+
+## !Mokelumne NF2 -----
+# near West Point
+
+site <- "11316700"
+
+mokel_nf2_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "mokel_nf2",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
+
+mokel_nf2 <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+  mutate(site_no = site_no,
+         date = Date,
+         flow = X_00060_00003,
+         .keep = "none") %>% relocate(date, flow)
+
+## !Mokelumne MF -----
+# at West Point; doesn't appear to be any major dams upstream (some diversions)
+
+site <- "11317000"
+
+mokel_mf_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "mokel_mf",
+            system_nm = "Sacramento R",
+            dam = "no") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
+
+mokel_mf <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+  mutate(site_no = site_no,
+         date = Date,
+         flow = X_00060_00003,
+         .keep = "none") %>% relocate(date, flow)
+
+## !Mokelumne SF -----
+# near West Point; doesn't appear to be any major dams upstream--
+# possibly one of the less affected systems
+
+site <- "11318500"
+
+mokel_sf_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "mokel_sf",
+            system_nm = "Sacramento R",
+            dam = "no") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
+
+mokel_sf <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+  mutate(site_no = site_no,
+         date = Date,
+         flow = X_00060_00003,
+         .keep = "none") %>% relocate(date, flow)
+
+## !Mokelumne -----
+# mainstem above Comanche & Pardee reservoirs, near Mokelumne Hill (town)
+#? near West Point (comparatively high elevation)
+
+site <- "11319500"
+
+mokel_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "mokel",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
+
+mokel <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+  mutate(site_no = site_no,
+         date = Date,
+         flow = X_00060_00003,
+         .keep = "none") %>% relocate(date, flow)
+
+## !Mokelumne2 -----
+# mainstem at Lodi/Woodbridge below Pardee & Comanchee reservoirs
+
+site <- "11325500"
+
+mokel2_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "mokel2",
+            system_nm = "Sacramento R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
+
+mokel2 <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+  mutate(site_no = site_no,
+         date = Date,
+         flow = X_00060_00003,
+         .keep = "none") %>% relocate(date, flow)
+
+mokelumne_meta <-  
+  bind_rows(mokel_nf_meta,
+            mokel_nf2_meta,
+            mokel_mf_meta,
+            mokel_sf_meta,
+            mokel_meta,
+            mokel2_meta
+  ) %>% 
+  relocate(site_cd) %>% 
+  select(site_cd:station_nm, dec_lat_va, dec_long_va, coord_datum_cd, county_cd,
+         land_net_ds, alt_va, alt_datum_cd, drain_area_va, local_time_fg)
+
+write_rds(mokelumne_meta, "data/mokelumne_meta.rds")
+
+# merge all mokelumne flow ts & save as zoo object
+mokelumne_flow
+
+temp <- lst(mokel, mokel2, mokel_mf, mokel_nf, mokel_nf2, mokel_sf)
+
+mokelumne_flow <-
+  temp %>% 
+  lapply(read.zoo) %>%        # create list of zoo objects
+  do.call(what = "merge") %>% # merge objects
+  fortify.zoo(name = "date")  # converts zoo to data frame
+
+write_rds(mokelumne_flow, "data/mokelumne_flow.rds")
+
+env_stats(butte$flow,
+          butte$date,
+          n_states = 11,
+          delta = 1,
+          is_uneven = TRUE,
+          noise_method = "lomb_scargle")
+
+mokelumne_flow[,1:2] %>% na.trim(.) %>% str()
+
+mokelumne_flow[,1:2] %>% na.trim(.) %>% 
+  env_stats(as.numeric(mokelumne_flow$flow.mokel),
+            mokelumne_flow$date,
+            n_states = 97,
+            delta = 1,
+            is_uneven = TRUE,
+            noise_method = "lomb_scargle")
+
+mokelumne_flow$flow.mokel_nf %>% 
+  fortify.zoo(name = "date") %>% 
+  na.trim(.) %>% 
+  env_stats(., dates = "date")
+
+mokelumne_flow$flow.mokel_nf %>% 
+  na.trim(.) %>% 
+  env_stats(.)
+
+na.trim(mokelumne_flow[1:3650,1])
+
+mok_envpred <- 
+  mokelumne_flow[,1] %>% 
+  fortify.zoo(name = "date") %>% 
+  na.trim(.) %>% 
+  env_stats(., date,
+            n_states = 11,
+            delta = 1,
+            is_uneven = TRUE,
+            noise_method = "lomb_scargle")
+
+
+
+# San Joaquin R ----
+
+### !Prisoners -----
+# lower SJR
+
+site <- "11313460"
+
+prisoners_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "prisoners",
+            system_nm = "San Joaquin R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
+
+prisoners <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+  mutate(site_no = site_no,
+         date = Date,
+         flow = X_00060_00003,
+         .keep = "none") %>% relocate(date, flow)
+
+
+### !Buckley -----
+# lower SJR near Buckley
+
+site <- "375841121225601"
+
+buckley_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "buckley",
+            system_nm = "San Joaquin R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
+
+buckley <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+  mutate(site_no = site_no,
+         date = Date,
+         flow = X_00060_00003,
+         .keep = "none") %>% relocate(date, flow)
+
+### !Stockton -----
+# lower SJR near Stockton
+
+site <- "11304810"
+
+stockton_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "stockton",
+            system_nm = "San Joaquin R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
+
+stockton <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+  mutate(site_no = site_no,
+         date = Date,
+         flow = X_00060_00003,
+         .keep = "none") %>% relocate(date, flow)
+
+### !Vernalis -----
+# lower SJR near Vernalis
+
+site <- "11303500"
+
+vernalis_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "vernalis",
+            system_nm = "San Joaquin R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
+
+vernalis <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+  mutate(site_no = site_no,
+         date = Date,
+         flow = X_00060_00003,
+         .keep = "none") %>% relocate(date, flow)
+
+
+# SJR tribs ----
+
+## Stanislaus NF ----
+### !utica ----
+# north fork of the Stanislaus below Utica Reservoir
+
+site <- "11293372"
+
+utica_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "utica",
+            system_nm = "San Joaquin R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
+
+utica <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+  mutate(site_no = site_no,
+         date = Date,
+         flow = X_00060_00003,
+         .keep = "none") %>% relocate(date, flow)
+
+### !avery ----
+# north fork of the Stanislaus near Avery
+
+site <- "11294500"
+
+avery_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "avery",
+            system_nm = "San Joaquin R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
+
+avery <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+  mutate(site_no = site_no,
+         date = Date,
+         flow = X_00060_00003,
+         .keep = "none") %>% relocate(date, flow)
+
+### !collierville ----
+# Stanislaus R below confluence NF & MF
+
+site <- "11295250"
+
+collierville_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "collierville",
+            system_nm = "San Joaquin R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
+
+collierville <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+  mutate(site_no = site_no,
+         date = Date,
+         flow = X_00060_00003,
+         .keep = "none") %>% relocate(date, flow)
+
+### !black ----
+# Black Creek, trib to Stanislaus R, possibly no dam upstream, near Copperopolis
+
+site <- "11299600"
+
+black_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "black",
+            system_nm = "San Joaquin R",
+            dam = "no") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
+
+black <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+  mutate(site_no = site_no,
+         date = Date,
+         flow = X_00060_00003,
+         .keep = "none") %>% relocate(date, flow)
+
+### !knights ----
+# Stanislaus R below Goodwin Dam, near Knights Ferry
+
+site <- "11300500"
+
+knights_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "knights",
+            system_nm = "San Joaquin R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
+
+knights <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+  mutate(site_no = site_no,
+         date = Date,
+         flow = X_00060_00003,
+         .keep = "none") %>% relocate(date, flow)
+
+### !oakdale ----
+# Stanislaus R near Oakdale
+
+site <- "11302500"
+
+oakdale_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "knights",
+            system_nm = "San Joaquin R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
+
+oakdale <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+  mutate(site_no = site_no,
+         date = Date,
+         flow = X_00060_00003,
+         .keep = "none") %>% relocate(date, flow)
+
+## Stanislaus MF ----
+### !kennedy ----
+# middle fork of the Stanislaus near Kennedy Mdws; possibly no dam
+
+site <- "11292000"
+
+kennedy_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "kennedy",
+            system_nm = "San Joaquin R",
+            dam = "no") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
+
+kennedy <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+  mutate(site_no = site_no,
+         date = Date,
+         flow = X_00060_00003,
+         .keep = "none") %>% relocate(date, flow)
+
+### !hellhalf ----
+# middle fork of the Stanislaus near Hells Half Acre
+
+site <- "11292700"
+
+hellhalf_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "hellhalf",
+            system_nm = "San Joaquin R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
+
+hellhalf <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+  mutate(site_no = site_no,
+         date = Date,
+         flow = X_00060_00003,
+         .keep = "none") %>% relocate(date, flow)
+
+### !beardsley ----
+# middle fork of the Stanislaus below Beardsley Dam
+
+site <- "11292900"
+
+beardsley_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "beardsley",
+            system_nm = "San Joaquin R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
+
+beardsley <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+  mutate(site_no = site_no,
+         date = Date,
+         flow = X_00060_00003,
+         .keep = "none") %>% relocate(date, flow)
+
+## Stanislaus SF -----
+### !Stanislaus SF ----
+# south fork of the Stanislaus below Strawberr Dam & Pinecrest Lake
+# Strawberry (Pinecrest Lake, higher ele) and Lyons (Lyons Reservoir,
+# lower ele) dams
+
+site <- "11296500"
+
+stanis_sf_meta <- readNWISsite(site) %>% 
+  bind_cols(site_cd = "stanis_sf",
+            system_nm = "San Joaquin R",
+            dam = "yes") %>% 
+  relocate(site_cd, 
+           dam,
+           system_nm,
+           .after = site_no) %>% 
+  mutate(map_scale_fc = as.numeric(map_scale_fc)) %>% 
+  print()
+
+stanis_sf <- # raw daily data
+  readNWISdv(siteNumber = site, 
+             parameterCd = "00060", # discharge, ft3/s
+             statCd = "00003") %>% # pulls daily mean only
+  mutate(site_no = site_no,
+         date = Date,
+         flow = X_00060_00003,
+         .keep = "none") %>% relocate(date, flow)
+
+
 
 ## Tuolumne R -----
 ### Tuolumne ----
@@ -817,7 +1434,7 @@ site <- "11274790"
 
 grand_cyn_meta <- readNWISsite(site) %>% 
   bind_cols(site_cd = "grand_cyn",
-            system_nm = "Sacramento R",
+            system_nm = "San Joaquin R",
             dam = "no") %>% 
   relocate(site_cd, 
            dam,
@@ -833,7 +1450,7 @@ grand_cyn <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ### Hetch Hetchy ----
 # Tuolumne River just below O'Shaunnesy Dam
@@ -842,7 +1459,7 @@ site <- "11276500"
 
 hetchy_meta <- readNWISsite(site) %>% 
   bind_cols(site_cd = "hetchy",
-            system_nm = "Sacramento R",
+            system_nm = "San Joaquin R",
             dam = "yes") %>% 
   relocate(site_cd, 
            dam,
@@ -857,7 +1474,7 @@ hetchy <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ### Mather ----
 # Tuolumne River below O'Shaunnesy near Mather
@@ -866,7 +1483,7 @@ site <- "11276600"
 
 mather_meta <- readNWISsite(site) %>% 
   bind_cols(site_cd = "mather",
-            system_nm = "Sacramento R",
+            system_nm = "San Joaquin R",
             dam = "yes") %>% 
   relocate(site_cd, 
            dam,
@@ -881,7 +1498,7 @@ mather <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ## Merced River ----
 ### Valley -----
@@ -891,7 +1508,7 @@ site <- "11264500"
 
 happy_isles_meta <- readNWISsite(site) %>% 
   bind_cols(site_cd = "happy_isles",
-            system_nm = "Sacramento R",
+            system_nm = "San Joaquin R",
             dam = "no") %>% 
   relocate(site_cd, 
            dam,
@@ -907,7 +1524,7 @@ happy_isles <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ### Pohono ----
 # Merced R at Pohono Bridge below Yosemite Valley
@@ -916,7 +1533,7 @@ site <- "11266500"
 
 pahono_meta <- readNWISsite(site) %>% 
   bind_cols(site_cd = "pahono",
-            system_nm = "Sacramento R",
+            system_nm = "San Joaquin R",
             dam = "no") %>% 
   relocate(site_cd, 
            dam,
@@ -931,7 +1548,7 @@ pahono <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 ### MFalls ----
 # Merced R below Merced Falls Dam
@@ -940,7 +1557,7 @@ site <- "11270900"
 
 merced_meta <- readNWISsite(site) %>% 
   bind_cols(site_cd = "merced",
-            system_nm = "Sacramento R",
+            system_nm = "San Joaquin R",
             dam = "yes") %>% 
   relocate(site_cd, 
            dam,
@@ -955,7 +1572,7 @@ merced <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow)
 
 # Klamath River -----
 ## Yreka ----
@@ -980,7 +1597,7 @@ yreka <- # raw daily data
   mutate(site_no = site_no,
          date = Date,
          flow = X_00060_00003,
-         .keep = "none") %>% relocate(flow, date) %>% relocate(flow, date)
+         .keep = "none") %>% relocate(date, flow) %>% relocate(date, flow)
 
 # meta data -----
 flow_meta <- 
@@ -1022,7 +1639,7 @@ flow_meta <-
             yreka_meta
   ) %>% 
   relocate(site_cd) %>% 
-  select(site_cd:station_nm, dec_lat_va, dec_long_va, coord_datum_cd, county_cd,
+  select(site_no:station_nm, dec_lat_va, dec_long_va, coord_datum_cd, county_cd,
          land_net_ds, alt_va, alt_datum_cd, drain_area_va, local_time_fg)
 
 # show data from all sites (except for butte_forks & harvest)
